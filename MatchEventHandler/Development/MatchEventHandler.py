@@ -3,9 +3,16 @@ import os
 
 
 class MatchEventHandler: 
-	def __init__(self):
-		self.matches_file_path = r"C:\Users\danie\Documents\Montanuni\2021_22WS\Digital Twins\4 Data\Matches\Matches.xls"
-		self.match_events_file_path = r"C:\Users\danie\Documents\Montanuni\2021_22WS\Digital Twins\4 Data\Match Events"
+	def __init__(self, matches_file_path=None, match_events_file_path=None):
+		if matches_file_path is None:
+			self.matches_file_path = r"C:\Users\danie\Documents\Montanuni\2021_22WS\Digital Twins\4 Data\Matches\Matches.xls"
+		else:
+			self.matches_file_path = matches_file_path
+
+		if match_events_file_path is None:
+			self.match_events_file_path = r"C:\Users\danie\Documents\Montanuni\2021_22WS\Digital Twins\4 Data\Match Events"
+		else:
+			self.match_events_file_path = match_events_file_path
 
 		self.matches = None # All possible matches
 		self.match = None # The match the match event data has been loaded for
