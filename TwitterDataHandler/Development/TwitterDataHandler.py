@@ -8,7 +8,7 @@ class TwitterDataHandler:
 		self.data = None
 		self.data_keyword = None
 
-		self.data_location = r"C:\Users\danie\Documents\Montanuni\2021_22WS\Digital Twins\4 Data"
+		self.data_location = r"mysite/data/twitter_data/Digital_Twins_Data"
 
 		# Define errors
 		self.errors = {'PLT_1': '*** PLT_1 *** Data could not be plotted. Please specify only keys which are actually in the data!',
@@ -25,6 +25,9 @@ class TwitterDataHandler:
 		# Load all the files containing the keyword into the data directory
 		files = [x for x in glob.glob(os.path.join(self.data_location, '*.csv')) if keyword in x]
 
+		if len(files) == 0:
+		    return False
+
 		# Read all the files into self.data
 		for file in files:
 			self.read_file(file, keyword)
@@ -40,6 +43,8 @@ class TwitterDataHandler:
 
 		# Sort the data by the index
 		self.data.sort_index(0)
+
+		return True
 
 	def read_file(self, filename, keyword):
 		"""

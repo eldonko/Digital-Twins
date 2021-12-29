@@ -1,14 +1,21 @@
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
-from TwitterDataHandler.Development.TwitterDataHandler import TwitterDataHandler
-from MatchEventHandler.Development.MatchEventHandler import MatchEventHandler
+from mysite.data_handling.Digital_Twins.TwitterDataHandler.Development.TwitterDataHandler import TwitterDataHandler
+from mysite.data_handling.Digital_Twins.MatchEventHandler.Development.MatchEventHandler import MatchEventHandler
 
 
-class PlotHandler: 
+class PlotHandler:
 	def __init__(self):
-		self.match_event_handler = MatchEventHandler()
-		self.twitter_data_handler = TwitterDataHandler()
+	    #, matches_file_path=None, match_events_file_path=None):
+		#self.match_event_handler = MatchEventHandler(matches_file_path, match_events_file_path)
+		#self.twitter_data_handler = TwitterDataHandler()
+		self.match_event_handler = None
+		self.twitter_data_handler = None
+
+	def create_twitter_handlers(self, matches_file_path, match_events_file_path):
+	    self.match_event_handler = MatchEventHandler(matches_file_path, match_events_file_path)
+	    self.twitter_data_handler = TwitterDataHandler()
 
 	def plot_keywords_in_time_range(self, keywords: list, start_time='1970-01-01', end_time='2100-01-01', show=False,
 									ret=False, ax_in=None):
@@ -24,10 +31,15 @@ class PlotHandler:
 		"""
 
 		for keyword in keywords:
-			if self.twitter_data_handler.data is None:
-				self.twitter_data_handler.add_keyword(keyword)
-			elif keyword not in self.twitter_data_handler.data.columns.values:
-				self.twitter_data_handler.add_keyword(keyword)
+		    keyword_exists = True
+
+		    if self.twitter_data_handler.data is None:
+		        keyword_exists = self.twitter_data_handler.add_keyword(keyword)
+		    elif keyword not in self.twitter_data_handler.data.columns.values:
+			    keyword_exists = self.twitter_data_handler.add_keyword(keyword)
+
+		    if not keyword_exists:
+			    keywords.remove(keyword)
 
 		time_range_data = self.twitter_data_handler.extract_data('all', (start_time, end_time))
 		time_range_data['Time'] = time_range_data.index
@@ -66,7 +78,8 @@ class PlotHandler:
 
 		# Get the start time of the match# Convert the date string to pandas datetime format
 		date_dt = pd.to_datetime(date)
-		kick_off_time = self.match_event_handler.match['Time'].iloc[0]
+		match_events['Time stamp'] = pd.DatetimeIndex(match_events['Time stamp'], tz='Europe/Vienna').tz_convert(None)
+		kick_off_time = match_events['Time stamp'].iloc[0]
 
 		# Set the interval for which the data should be plotted
 		start_time = date_dt.replace(hour=kick_off_time.hour - hours_before, minute=kick_off_time.minute)
@@ -81,4 +94,5 @@ class PlotHandler:
 		for time in match_events['Time stamp']:
 			ax.axvline(time, color='k', linestyle='--')
 
-		plt.show()
+		#plt.show()
+		return ax
