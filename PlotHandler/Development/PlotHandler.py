@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 import pandas as pd
 from mysite.data_handling.Digital_Twins.TwitterDataHandler.Development.TwitterDataHandler import TwitterDataHandler
 from mysite.data_handling.Digital_Twins.MatchEventHandler.Development.MatchEventHandler import MatchEventHandler
