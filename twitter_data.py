@@ -4,7 +4,7 @@ import json
 import pandas as pd
 import datetime
 
-bearer_token = "AAAAAAAAAAAAAAAAAAAAAPJ6VAEAAAAAdGibDOPxguPy%2BBd3jzbo%2BzUtY%2FU%3DNR8E9WN4VZr1sDLtzkdB8vSkIODhx9VfSOCfyoxYBIRvhxQ7gI"
+bearer_token = "ENTER_TOKEN_HERE"
 search_url = "https://api.twitter.com/2/tweets/counts/recent"
 
 
