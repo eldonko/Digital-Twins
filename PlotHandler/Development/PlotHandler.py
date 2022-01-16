@@ -44,7 +44,10 @@ class PlotHandler:
 		time_range_data['Time'] = time_range_data.index
 		time_range_data['Time'] = pd.to_datetime(time_range_data['Time']).dt.strftime('%d.%m %H:%M')
 
-		ax = time_range_data.plot(y=keywords, ax=ax_in)
+		ax = time_range_data.plot(y=keywords, ax=ax_in, figsize=(13, 7))
+		plt.xlabel('Time')
+		plt.xlabel('# of tweets')
+		plt.title('Number of tweets containing keywords during a Manchester United match')
 
 		if show:
 			plt.show()
@@ -53,7 +56,7 @@ class PlotHandler:
 			return ax
 
 	def plot_match_with_keywords(self, keywords: list, opponent: str, date: str, only_keyword_events=False, hours_before=1,
-								 hours_after=2):
+								 hours_after=1):
 		"""
 		Plots the number of tweets containing keywords during a match and the match events as vertical lines
 		:param keywords: list of keywords
@@ -66,32 +69,64 @@ class PlotHandler:
 		"""
 
 		# Load the match events for the match in question
-		match_events = self.match_event_handler.get_match_events(opponent, date)
-		print(match_events)
+		self.match_events = self.match_event_handler.get_match_events(opponent, date)
 
 		# Select only the events where players in keywords are involved (if specified)
 		if only_keyword_events:
-			match_events = match_events[(match_events['Player 1'].isin(keywords)) | (match_events['Player 2'].isin(keywords))]
-
-			print(match_events)
+			self.match_events = self.match_events[(self.match_events['Player 1'].isin(keywords)) | (self.match_events['Player 2'].isin(keywords))]
 
 		# Get the start time of the match# Convert the date string to pandas datetime format
 		date_dt = pd.to_datetime(date)
-		match_events['Time stamp'] = pd.DatetimeIndex(match_events['Time stamp'], tz='Europe/Vienna').tz_convert(None)
-		kick_off_time = match_events['Time stamp'].iloc[0]
+		self.match_events['Time stamp'] = pd.DatetimeIndex(self.match_events['Time stamp'], tz='Europe/Vienna').tz_convert(None)
+		kick_off_time = self.match_events['Time stamp'].iloc[0]
+		full_time = self.match_events['Time stamp'].iloc[-1]
 
 		# Set the interval for which the data should be plotted
 		start_time = date_dt.replace(hour=kick_off_time.hour - hours_before, minute=kick_off_time.minute)
-		end_time = date_dt.replace(hour=kick_off_time.hour + 2, minute=kick_off_time.minute)
+		end_time = date_dt.replace(hour=(full_time + pd.Timedelta(str(hours_after) + ' hours')).hour, minute=full_time.minute)
 
 		# Get the keywords plot
 		ax = self.plot_keywords_in_time_range(keywords, start_time=start_time, end_time=end_time, ret=True)
 
-		# Draw a vertical line for the kick off time
-		ax.axvline(date_dt.replace(hour=kick_off_time.hour, minute=kick_off_time.minute), color='r', linestyle=':')
-
-		for time in match_events['Time stamp']:
-			ax.axvline(time, color='k', linestyle='--')
+		for i in range(len(self.match_events)):
+			time = self.match_events.iloc[i]['Time stamp']
+			event = self.match_events.iloc[i]['Event']
+			team = self.match_events.iloc[i]['Team']
+			if event == 'Kick-off' or event == 'Half-time' or event == 'Full-time' or event == 'Second-half':
+				ax.axvline(time, color='k')
+			elif event == 'Goal' and team == 'United':
+			    ax.axvline(time, color='g', linestyle='--')
+			elif event == 'Goal' and team != 'United':
+			    ax.axvline(time, color='b', linestyle='--')
+			elif event == 'Yellow':
+			    ax.axvline(time, color='y', linestyle=':')
+			elif event == 'Second Yellow' or event == 'Red':
+			    ax.axvline(time, color='r', linestyle=':')
+			elif event == 'Sub':
+			    ax.axvline(time, color='orange', linestyle='-.')
 
 		#plt.show()
 		return ax
+
+	def plot_stock_data(self, stock_data):
+	    matches = self.match_event_handler.matches
+	    ax = stock_data.plot(y='close', figsize=(13, 7))
+	    plt.grid()
+
+	    for i in range(len(matches)):
+	        datetime = matches.iloc[i]['Datetime']
+	        result = matches.iloc[i]['Result']
+	        result = result.split(':')
+
+	        c = ''
+
+	        if result[0] > result[1]:
+	            c = 'g'
+	        elif result[0] < result[1]:
+	            c = 'r'
+	        else:
+	            c = 'y'
+
+	        ax.axvline(datetime, color=c)
+
+	    return ax
