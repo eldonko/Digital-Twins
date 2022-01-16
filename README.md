@@ -5,4 +5,13 @@ football (soccer) club and analyze the number of tweets posted containing keywor
 development of the club's stock price and the influence of matches on it.
 
 ## twitter_data.py
-This script en
+This script downloads the number of tweets per minute for the last 7 days for every keyword defined in keywords_definition.xls.
+
+## Plot Handler
+Does the plotting of the data.
+
+## Twitter Handler
+Handles the twitter data so that Plot Handler can plot it.
+
+## Match Handler
+Handles the manually compiled match data so that Plot Handler can plot it. 
