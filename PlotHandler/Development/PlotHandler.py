@@ -20,43 +20,66 @@ class PlotHandler:
         self.google_trends_handler = GoogleTrendsHandler()
 
     def plot_keywords_in_time_range(self, keywords: list, start_time='1970-01-01', end_time='2100-01-01', show=False,
-                                    ret=False, ax_in=None):
-        """
-        Plots the number of tweets containing keyword in the specified time range
-        :param keywords: list of keywords
-        :param start_time: date string of the beginning of the search interval
-        :param end_time: date string of the end of the search interval
-        :param show: Determines if the plot should be shown
-        :param ret: If True, the plot axis is returned
-        :param ax_in: Can be used to add the plot to another plot
-        :return: (optional) plot axis ax
-        """
+									ret=False, ax_in=None, plot_matches=False):
+		"""
+		Plots the number of tweets containing keyword in the specified time range
+		:param keywords: list of keywords
+		:param start_time: date string of the beginning of the search interval
+		:param end_time: date string of the end of the search interval
+		:param show: Determines if the plot should be shown
+		:param ret: If True, the plot axis is returned
+		:param ax_in: Can be used to add the plot to another plot
+		:param plot_matches: if vertical lines for matches should be plotted
 
-        for keyword in keywords:
-            keyword_exists = True
+		:return: (optional) plot axis ax
+		"""
 
-            if self.twitter_data_handler.data is None:
-                keyword_exists = self.twitter_data_handler.add_keyword(keyword)
-            elif keyword not in self.twitter_data_handler.data.columns.values:
-                keyword_exists = self.twitter_data_handler.add_keyword(keyword)
+		for keyword in keywords:
+		    keyword_exists = True
 
-            if not keyword_exists:
-                keywords.remove(keyword)
+		    if self.twitter_data_handler.data is None:
+		        keyword_exists = self.twitter_data_handler.add_keyword(keyword)
+		    elif keyword not in self.twitter_data_handler.data.columns.values:
+			    keyword_exists = self.twitter_data_handler.add_keyword(keyword)
 
-        time_range_data = self.twitter_data_handler.extract_data('all', (start_time, end_time))
-        time_range_data['Time'] = time_range_data.index
-        time_range_data['Time'] = pd.to_datetime(time_range_data['Time']).dt.strftime('%d.%m %H:%M')
+		    if not keyword_exists:
+			    keywords.remove(keyword)
 
-        ax = time_range_data.plot(y=keywords, ax=ax_in, figsize=(13, 7))
-        plt.xlabel('Time')
-        plt.xlabel('# of tweets')
-        plt.title('Number of tweets containing keywords during a Manchester United match')
+		time_range_data = self.twitter_data_handler.extract_data('all', (start_time, end_time))
+		time_range_data['Time'] = time_range_data.index
+		time_range_data['Time'] = pd.to_datetime(time_range_data['Time']).dt.strftime('%d.%m %H:%M')
 
-        if show:
-            plt.show()
+		ax = time_range_data.plot(y=keywords, ax=ax_in, figsize=(13, 7))
 
-        if ret:
-            return ax
+		if plot_matches:
+		    matches = self.match_event_handler.matches
+
+		    for i in range(len(matches)):
+		        datetime = matches.iloc[i]['Datetime']
+		        result = matches.iloc[i]['Result']
+		        result = result.split(':')
+
+		        c = ''
+
+		        if result[0] > result[1]:
+		            c = 'g'
+		        elif result[0] < result[1]:
+		            c = 'r'
+		        else:
+		            c = 'y'
+
+		        ax.axvline(datetime, color=c, alpha=0.5)
+
+		plt.xlabel('Time')
+		plt.xlabel('# of tweets')
+		plt.title('Number of tweets containing keywords during a Manchester United match')
+		plt.grid()
+
+		if show:
+			plt.show()
+
+		if ret:
+			return ax
 
     def plot_match_with_keywords(self, keywords: list, opponent: str, date: str, only_keyword_events=False,
                                  hours_before=1,
