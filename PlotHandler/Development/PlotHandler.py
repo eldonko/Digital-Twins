@@ -163,3 +163,7 @@ class PlotHandler:
                 ax.axvline(datetime, color=c, alpha=0.5)
 
         plt.show()
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9f8b27900b389294deed4e92c91bd4a0e31db33a
