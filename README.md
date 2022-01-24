@@ -14,7 +14,7 @@ For a given list of keywords, Twitter Handler loads the data obtained by twitter
 Given an Excel worksheet containing events that happened during a match (an exemplary version might be provided here in the future), Match Handler can load this information and return it in a pandas DataFrame. 
 
 ## Google Trends Handler
-Given keywords, Google Trends Handler loads and returns the number of Google searches.
+Making use of the pytrends library, Google Trends Handler loads and returns the number of Google searches for a keyword in a timerange in pandas DataFrame format. 
 
 ## Plot Handler
-Does the plotting of the data.
+Given the pandas DataFrames returned by the beforementioned Handlers, Plot Handler plots and prettifies the data. 
